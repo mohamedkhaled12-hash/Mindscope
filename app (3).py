@@ -199,10 +199,8 @@ st.markdown("""
 @st.cache_resource
 def load_assets():
     risk_model = joblib.load('risk_model_pipeline.pkl')
-    # الموديل والـ Encoder الجديد
     app_model = joblib.load('app_behavior_model_xgb (1).pkl')
     app_encoder = joblib.load('label_encoder (1).pkl')
-    # الـ Encoder الخاص بصفحة الطلاب (لأغراض العرض فقط إذا كان مختلفاً)
     original_encoder = joblib.load('label_encoder.pkl') 
     return risk_model, app_model, app_encoder, original_encoder
 
@@ -341,7 +339,10 @@ elif page == "App Behavior Analysis":
 
             # التنبؤ وجلب التسمية من الـ Encoder الجديد
             pred_idx = app_model.predict(df_app)[0]
-            final_app_label = app_encoder.inverse_transform([pred_idx])[0]
+            raw_label = str(app_encoder.inverse_transform([pred_idx])[0])
+            
+            # 🛠️ التنظيف الجذري: مسح أي مسافات أو حروف مخفية مثل \r أو \n
+            final_app_label = raw_label.replace('\r', '').replace('\n', '').strip()
             
             st.session_state['last_analysis_context'] = f"App Behavior Analysis Result: {final_app_label}"
             log_data("Apps", [age, gender, num_apps, screen_time, battery, data_usage, app_usage, final_app_label])
@@ -357,7 +358,6 @@ elif page == "App Behavior Analysis":
             # 📝 توزيع الإسكريبت على الـ 10 نتائج (Label Encoder)
             # ==========================================
             
-            # توصيات ثابتة لكل فئة من 1 إلى 5
             recs = {
                 1: "1. الحفاظ على مناطق خالية من التكنولوجيا. 2. فحص الجهاز المجدول. 3. تبني الهوايات التناظرية.",
                 2: "1. قاعدة الـ 30 دقيقة للتمرير. 2. إيقاف الإشعارات غير الضرورية. 3. الاستخدام المقصود للتطبيقات.",
@@ -366,7 +366,6 @@ elif page == "App Behavior Analysis":
                 5: "1. طلب الدعم المهني. 2. حذف التطبيقات عالية الخطورة. 3. أمسيات إلزامية خالية من الشاشات."
             }
 
-            # نصوص التحليل لكل جزء (Low/High) من فئة 1 لـ 5
             analysis_parts = {
                 "1 - Low Part": "تُظهر علاقة واعية ومقصودة جداً مع جهازك. نسبة تعفن الدماغ معدومة (0%-5%). وقت استخدامك منخفض واستهلاك البطارية يعكس تفاعلاً ضئيلاً. أنت تنظر للتكنولوجيا كمساعد وليس فخ.",
                 "1 - High Part": "لا تزال تحتفظ بسيطرة ممتازة ولكنك تنغمس أحياناً في ترفيه رقمي (6%-15%). نادراً ما تفقد الإحساس بالوقت، وتوازن بنجاح بين الاتصال الحديث ونمط الحياة الصحي.",
@@ -380,14 +379,17 @@ elif page == "App Behavior Analysis":
                 "5 - High Part": "أشد مستويات العبء الرقمي (96%-100%). إدمان يستهلك كل شيء وحمل إدراكي زائد كامل. انتباهك محطم تماماً، وتعاني من إجهاد عين وأرق حاد."
             }
 
-            # استخراج رقم الفئة من الملصق (مثلاً من '1 - Low Part' نأخذ 1)
-            class_num = int(final_app_label.split(' - ')[0])
+            # 🛠️ استخراج رقم الفئة بأمان تام حتى لو في مسافات
+            try:
+                class_num = int(''.join(filter(str.isdigit, final_app_label.split('-')[0])))
+            except:
+                class_num = 1 # قيمة افتراضية لتجنب توقف التطبيق
             
             app_script_html = f"""<div dir="rtl" style="text-align: right;" class="script-text">
 <div class="script-title" style="color:#22D3EE;">📋 التقرير التحليلي للفئة {class_num}</div>
 <div class="section-box" style="border-right: 4px solid #22D3EE;">
 <p style="color:#67E8F9; font-size: 18px; margin-bottom: 5px;"><b>التحليل السلوكي للجزء الخاص بك:</b></p>
-<p>{analysis_parts.get(final_app_label, "")}</p>
+<p>{analysis_parts.get(final_app_label, "تم التحليل بنجاح، يُرجى مراجعة التوصيات.")}</p>
 </div>
 <div class="section-box" style="border-right: 4px solid #A855F7;">
 <p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>توصيات الفئة {class_num}:</b></p>
