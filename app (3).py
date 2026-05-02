@@ -59,13 +59,6 @@ st.markdown("""
     /* =========================================
        إلغاء نظام الـ Light Mode وتوحيد الألوان والخطوط 
        ========================================= */
-       
-    /* إخفاء القائمة العلوية لمنع المستخدم من التبديل بين الثيمات */
-    [data-testid="stToolbar"], [data-testid="stHeader"], header, #MainMenu {
-        visibility: hidden !important;
-        display: none !important;
-    }
-
     :root {
         --text-color: #F8FAFC !important;
         --background-color: #020617 !important;
@@ -80,6 +73,9 @@ st.markdown("""
         color: #F8FAFC !important;
     }
     
+    [data-testid="stHeader"] { background-color: transparent !important; }
+    [data-testid="stHeader"] * { color: #F8FAFC !important; }
+
     h1, h2, h3, h4, label, p, li {
         color: #F8FAFC !important;
         font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
