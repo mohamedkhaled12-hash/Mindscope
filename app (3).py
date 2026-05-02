@@ -289,8 +289,8 @@ if page == "App Behavior Analysis":
         with col2:
             screen_time = st.number_input("Screen Time (hours):", 0.0, 24.0, 5.0)
             battery = st.number_input("Battery Drain (mAh):", 0, 10000, 2000)
-            data_usage = st.number_input("Data (MB):", 0, 50000, 1000)
-            app_usage = st.number_input("Usage Time (min):", 0, 1440, 300)
+            data_usage = st.number_input("Data usage (MB):", 0, 50000, 1000)
+            app_usage = st.number_input("App Usage Time (min) :", 0, 1440, 300)
         submit_app = st.form_submit_button("ANALYZE USER BEHAVIOR", use_container_width=True)
 
     if submit_app:
