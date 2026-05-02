@@ -246,179 +246,12 @@ except Exception as e:
 st.markdown("<div class='gradient-text'>Vision Analytics</div>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #94A3B8 !important; margin-bottom: 25px; font-size: 1.1rem; animation: fadeInUp 0.4s ease-out forwards;'>Empowered by Advanced Machine Learning</p>", unsafe_allow_html=True)
 
-page = st.radio("", ["Student Risk Analysis", "App Behavior Analysis", "AI Assistant 🤖"], horizontal=True, label_visibility="collapsed")
+page = st.radio("", ["App Behavior Analysis", "Student Risk Analysis", "AI Assistant 🤖"], horizontal=True, label_visibility="collapsed")
 
 # ------------------------------------------------------------------
-# Page 1: Student Risk Analysis
+# Page 1: App Behavior Analysis (10 Results Update)
 # ------------------------------------------------------------------
-if page == "Student Risk Analysis":
-    st.markdown("<h3 style='color: #E9D5FF !important; font-weight: 700; display:flex; align-items:center; gap:10px; animation: fadeInUp 0.6s ease-out forwards;'>🧠 Student Risk Intelligence</h3>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    stress_map = {"Very Calm": 1.0, "Normal Stress": 4.0, "Highly Stressed": 7.0, "Extremely Stressed": 10.0}
-    anxiety_map = {"Stable": 1.0, "Mild Anxiety": 3.5, "Constant Tension": 7.0, "Severe Panic": 10.0}
-    support_map = {"Completely Isolated": 1.0, "Limited Support": 4.0, "Good Support": 7.5, "Strong Support": 10.0}
-    dep_map = {"Optimistic & Energetic": 1.0, "Occasional Sadness": 4.5, "Frequent Low Mood": 7.5, "Severe Despair": 10.0}
-    sleep_map = {"< 4 hours (Severely Deprived)": 3.0, "4-6 hours (Insufficient)": 5.0, "7-9 hours (Healthy)": 8.0, "> 9 hours (Oversleeping)": 10.0}
-    exam_map = {"No Immediate Exams": 1.0, "Manageable Workload": 4.0, "High Academic Stress": 7.5, "Overwhelming Pressure": 10.0}
-
-    with st.form("risk_form"):
-        st.subheader("📋 Behavioral Assessment")
-        st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin: 10px 0 25px 0;'>", unsafe_allow_html=True)
-        col1, col2 = st.columns(2, gap="large")
-
-        with col1:
-            st.markdown("<b style='color:#38BDF8 !important; font-size: 18px;'>🧬 Psychological Factors</b>", unsafe_allow_html=True)
-            stress = st.selectbox("Stress Level:", list(stress_map.keys()))
-            anxiety = st.selectbox("Anxiety Level:", list(anxiety_map.keys()))
-            depression = st.selectbox("Mood & Energy:", list(dep_map.keys()))
-        with col2:
-            st.markdown("<b style='color:#38BDF8 !important; font-size: 18px;'>🌍 Environmental Factors</b>", unsafe_allow_html=True)
-            support = st.selectbox("Social Support:", list(support_map.keys()))
-            sleep = st.selectbox("Daily Sleep:", list(sleep_map.keys()))
-            exams = st.selectbox("Academic Workload:", list(exam_map.keys()))
-        submit_risk = st.form_submit_button("Initiate AI Analysis", use_container_width=True)
-
-    if submit_risk:
-        features = pd.DataFrame([{
-            'stress_level': float(stress_map[stress]), 'anxiety_score': float(anxiety_map[anxiety]),
-            'depression_score': float(dep_map[depression]), 'social_support': float(support_map[support]),
-            'sleep_hours': float(sleep_map[sleep]), 'exam_pressure': float(exam_map[exams])
-        }])
-
-        with st.spinner("Processing..."):
-            probs = risk_model.predict_proba(features)[0]
-            clean_classes = [str(c).strip().title() for c in encoder.classes_]
-            prob_dict = {c: p for c, p in zip(clean_classes, probs)}
-            
-            if prob_dict.get('High', 0.0) >= 0.25: final_label = 'High'
-            elif prob_dict.get('Medium', 0.0) >= 0.35: final_label = 'Medium'
-            else: final_label = clean_classes[np.argmax(probs)]
-
-            st.session_state['last_analysis_context'] = f"قام المستخدم للتو بتحليل (Student Risk Analysis). النتيجة هي: مستوى خطر {final_label}."
-            log_data("Students", [stress, anxiety, depression, support, sleep, exams, final_label])
-
-        res_col1, res_col2 = st.columns([1, 1.5])
-        with res_col1:
-            st.markdown('<div class="metric-card" style="text-align: center;">', unsafe_allow_html=True)
-            if 'High' in final_label: st.markdown("<h2 style='color:#F43F5E; font-size: 30px; font-weight: 900;'>🚨 HIGH RISK</h2>", unsafe_allow_html=True)
-            elif 'Medium' in final_label: st.markdown("<h2 style='color:#FBBF24; font-size: 30px; font-weight: 900;'>🟡 MEDIUM RISK</h2>", unsafe_allow_html=True)
-            else: st.markdown("<h2 style='color:#34D399; font-size: 30px; font-weight: 900;'>✅ LOW RISK</h2>", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with res_col2:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-            fig = px.bar(x=probs*100, y=clean_classes, orientation='h', color=clean_classes, color_discrete_map={'High':'#F43F5E', 'Medium':'#FBBF24', 'Low':'#34D399'})
-            fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#F8FAFC'), height=200, showlegend=False)
-            st.plotly_chart(fig, use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        # ==========================================
-        # 📝 إسكريبت تقييم الطلاب
-        # ==========================================
-        student_scripts = {
-            'Low': """<div dir="rtl" style="text-align: right;" class="script-text">
-<div class="script-title" style="color:#34D399;">✅ مستوى الخطر المنخفض | Low Risk Level</div>
-<div class="section-box" style="border-right: 4px solid #34D399;">
-<p style="color:#6EE7B7; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
-<p>يشير مستوى الخطر المنخفض إلى أنك تتنقل في بيئتك الأكاديمية بنجاح مع توازن عقلي وعاطفي ممتاز. من المحتمل أنك تبلغ عن أنماط نوم صحية، وعبء عمل أكاديمي يمكن إدارته، ومزاج متفائل بشكل عام. نظراً لأن مستويات التوتر والقلق لديك مستقرة، تظل وظائفك المعرفية حادة، مما يسمح بأداء أكاديمي عالٍ. أنت تستفيد بشكل كبير من أنظمة الدعم الاجتماعي القوية وآليات التكيف الصحية، مما يضمن عدم تحول الضغوط العرضية إلى احتراق. أنت تنظر إلى دراستك كتمثيل لتحدٍ إيجابي وليس كعبء ساحق. تحميك هذه الحالة المرنة بقوة ضد الاحتراق الرقمي، مما يعني أنه يمكنك استخدام التكنولوجيا للتعلم دون الوقوع في فخ التمرير اللانهائي أو استخدام وسائل التواصل الاجتماعي للهروب من الواقع الأكاديمي.</p>
-</div>
-<div class="section-box" style="border-right: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
-<ul>
-<li><b>الحفاظ على عادات نوم صحية ومتسقة:</b> استمر في إعطاء الأولوية للنوم من 7 إلى 9 ساعات. الراحة عالية الجودة هي الركيزة الأساسية لنجاحك الأكاديمي الحالي وتنظيمك العاطفي الممتاز.</li>
-<li><b>التوجيه ودعم الأقران:</b> نظراً لأن لديك دعماً اجتماعياً قوياً، فكر في توجيه الآخرين. إن تعليم الأقران لا يعزز معرفتك فحسب، بل يعمق أيضاً روابطك الاجتماعية القيمة.</li>
-<li><b>إدارة الوقت الاستباقية:</b> استمر في استخدام المخططات أو التقويمات الرقمية لجدولة مهامك مسبقاً. البقاء متقدماً على المواعيد النهائية يضمن بقاء عبء العمل قابلاً للإدارة وبقاء التوتر منخفضاً بشكل ملحوظ.</li>
-</ul>
-</div>
-</div>
-<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
-<div class="section-box" style="border-left: 4px solid #34D399;">
-<p style="color:#6EE7B7; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
-<p>A Low Risk Level indicates that you are successfully navigating your academic environment with excellent mental and emotional balance. You likely report healthy sleep patterns, a manageable academic workload, and a generally optimistic mood. Because your stress and anxiety levels are stable, your cognitive functions remain sharp, allowing for high academic performance. You benefit greatly from strong social support systems and healthy coping mechanisms, ensuring that occasional pressures do not escalate into burnout. You view your studies as a positive challenge rather than an overwhelming burden. This resilient state strongly protects you against digital burnout, meaning you can utilize technology for learning without falling into the trap of endless scrolling or using social media to escape academic reality.</p>
-</div>
-<div class="section-box" style="border-left: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
-<ul>
-<li><b>Maintain Consistent Sleep Hygiene:</b> Continue prioritizing your 7 to 9 hours of sleep. High-quality rest is the foundational pillar of your current academic success and excellent emotional regulation.</li>
-<li><b>Mentorship and Peer Support:</b> Since you have strong social support, consider mentoring others. Teaching peers not only reinforces your own knowledge but also deepens your valuable social connections.</li>
-<li><b>Proactive Time Management:</b> Keep using planners or digital calendars to schedule your tasks in advance. Staying ahead of deadlines ensures your workload remains manageable and your stress stays remarkably low.</li>
-</ul>
-</div>
-</div>""",
-
-            'Medium': """<div dir="rtl" style="text-align: right;" class="script-text">
-<div class="script-title" style="color:#FBBF24;">🟡 مستوى الخطر المتوسط | Medium Risk Level</div>
-<div class="section-box" style="border-right: 4px solid #FBBF24;">
-<p style="color:#FCD34D; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
-<p>يشير مستوى الخطر المتوسط إلى أنك تتأرجح على حافة الإرهاق الأكاديمي. أنت تعاني من ارتفاع التوتر، والحزن العرضي، والقلق الخفيف. قد يكون نومك غير كافٍ، حيث يتقلب بين 4 إلى 6 ساعات، مما يعيق بشكل مباشر قدرة دماغك على التعافي. يتزايد الضغط الأكاديمي، مما يجعل الشعور بعبء العمل أكثر صعوبة في الإدارة. في هذه المرحلة، أنت معرض بشدة لاستخدام الوسائط الرقمية كآلية للتكيف. قد تجد نفسك تقوم بالتمرير بشكل سلبي لتجنب التفكير في الاختبارات القادمة، مبدلاً دون قصد الراحة المجددة للنشاط بالتشتت الرقمي. يخلق هذا حلقة مفرغة خطيرة حيث يؤدي ضعف النوم والاحتراق الخفيف إلى مزيد من وقت الشاشة، والذي بدوره يقلل من دافعك العام وتركيزك اليومي.</p>
-</div>
-<div class="section-box" style="border-right: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
-<ul>
-<li><b>إنشاء روتين للاسترخاء:</b> استبدل الدراسة أو التمرير في وقت متأخر من الليل بروتين مهدئ قبل النوم. قراءة كتاب أو ممارسة التنفس العميق يساعد على نقل دماغك من الضغط الأكاديمي العالي إلى النوم المجدد للنشاط.</li>
-<li><b>تقسيم المهام إلى خطوات صغيرة:</b> تؤدي أعباء العمل المرهقة إلى سلوكيات التجنب مثل التمرير الكارثي. قم بتقسيم مهامك إلى مهام صغيرة مدتها 15 دقيقة لبناء الزخم وتقليل القلق المرتبط بالمشاريع الكبيرة.</li>
-<li><b>جدولة "وقت للقلق":</b> خصص 20 دقيقة يومياً تحديداً لتدوين مخاوفك الأكاديمية. احتواء توترك في نافذة زمنية محددة يمنعه من التسرب إلى وقت استرخائك ونومك.</li>
-<li><b>الاستفادة من موارد الحرم الجامعي:</b> لا تنتظر حتى يتم إرهاقك تماماً. شكل مجموعة دراسية أو قم بزيارة مركز الدعم الأكاديمي بجامعتك لتوزيع الضغط بشكل خفيف وتحسين شبكة الدعم الاجتماعي الخاصة بك.</li>
-</ul>
-</div>
-</div>
-<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
-<div class="section-box" style="border-left: 4px solid #FBBF24;">
-<p style="color:#FCD34D; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
-<p>A Medium Risk Level suggests you are balancing on the edge of academic fatigue. You are experiencing elevated stress, occasional sadness, and mild anxiety. Your sleep might be insufficient, fluctuating between 4 to 6 hours, which directly hampers your brain's ability to recover. The academic pressure is building, making your workload feel increasingly difficult to manage. At this stage, you are highly vulnerable to using digital media as a coping mechanism. You might find yourself passively scrolling to avoid thinking about upcoming exams, unintentionally trading restorative rest for digital distraction. This creates a dangerous feedback loop where poor sleep and mild burnout lead to more screen time, which in turn further decreases your overall motivation and daily focus.</p>
-</div>
-<div class="section-box" style="border-left: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
-<ul>
-<li><b>Establish a Wind-Down Routine:</b> Swap late-night studying or scrolling for a calming pre-sleep routine. Reading a book or practicing deep breathing helps transition your brain from high academic stress to restorative sleep.</li>
-<li><b>Break Tasks into Micro-Steps:</b> Overwhelming workloads trigger avoidance behaviors like doomscrolling. Break your assignments into tiny, 15-minute tasks to build momentum and reduce the anxiety associated with large projects.</li>
-<li><b>Schedule "Worry Time":</b> Allocate 20 minutes a day specifically to write down your academic anxieties. Containing your stress to a specific window prevents it from bleeding into your relaxation and sleep time.</li>
-<li><b>Leverage Campus Resources:</b> Don't wait until you are fully overwhelmed. Form a study group or visit your university's academic support center to lightly distribute the pressure and improve your social support network.</li>
-</ul>
-</div>
-</div>""",
-
-            'High': """<div dir="rtl" style="text-align: right;" class="script-text">
-<div class="script-title" style="color:#F43F5E;">🚨 مستوى الخطر المرتفع | High Risk Level</div>
-<div class="section-box" style="border-right: 4px solid #F43F5E;">
-<p style="color:#FB7185; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
-<p>مستوى الخطر المرتفع هو علامة تحذير حاسمة من الاحتراق الأكاديمي والرقمي الشديد. من المحتمل أنك تعاني من ضغط شديد، وحالات مزاجية منخفضة متكررة، وقلق حاد. نومك إما محروم بشدة أو مفرط كاستجابة للإرهاق. مع الضغط الأكاديمي الساحق والدعم الاجتماعي المحدود، أنت تعمل بالكامل في وضع "البقاء على قيد الحياة". في هذا المستوى، يكون احتمال الاستخدام الإشكالي لوسائل التواصل الاجتماعي مرتفعاً بشكل لا يصدق. قد تستخدم المحتوى اللانهائي للانفصال تماماً عن الضغط الشديد لحياتك اليومية. يضعف هذا الإرهاق الشديد ذاكرتك، ويسحق وظائفك التنفيذية، ويدمر أداءك الأكاديمي. دماغك مثقل بشكل كبير، ويتطلب تدخلاً فورياً ورحيماً لاستعادة رفاهيتك الجسدية والعقلية.</p>
-</div>
-<div class="section-box" style="border-right: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية (تدخل فوري):</b></p>
-<ul>
-<li><b>إعطاء الأولوية للراحة فوق كل شيء:</b> النجاح الأكاديمي مستحيل دون الأداء المعرفي. يجب عليك على الفور إعطاء الأولوية للحصول على ما لا يقل عن 7 ساعات من النوم، حتى لو كان ذلك يعني طلب تمديد لمهامك الحالية.</li>
-<li><b>طلب الاستشارة المهنية:</b> يتطلب الاحتراق عالي المستوى تدخلاً مهنياً. تواصل مع خدمات الصحة النفسية في جامعتك على الفور لوضع خطة منظمة وواقعية لإدارة قلقك الشديد.</li>
-<li><b>التواصل مع الأساتذة:</b> لا تخفِ معاناتك. تواصل بصراحة حول إرهاقك مع أساتذتك أو مرشديك الأكاديميين. يميل معظم أعضاء هيئة التدريس إلى تقديم تسهيلات عندما يدركون أنك في أزمة.</li>
-<li><b>الانفصال الرقمي الجذري:</b> نظراً لأن الشاشات من المحتمل أن تغذي انفصالك عن الواقع، قم بتنفيذ التخلص من السموم الرقمية بصرامة. استخدم أدوات حظر مواقع الويب على الكمبيوتر المحمول الخاص بك لتقييد وصولك إلى الإنترنت بشكل صارم على البوابات الأكاديمية الأساسية فقط.</li>
-</ul>
-</div>
-</div>
-<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
-<div class="section-box" style="border-left: 4px solid #F43F5E;">
-<p style="color:#FB7185; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
-<p>A High Risk Level is a critical warning sign of severe academic and digital burnout. You are likely enduring extreme stress, frequent low moods, and severe anxiety. Your sleep is either severely deprived or excessive as an exhaustion response. With overwhelming academic pressure and limited social support, you are functioning entirely in survival mode. In this tier, the likelihood of problematic social media use is incredibly high. You may be using endless content to completely dissociate from the intense pressure of your daily life. This severe exhaustion impairs your memory, crushes your executive functioning, and ruins your academic performance. Your brain is drastically overloaded, requiring an immediate and compassionate intervention to restore your physical and mental well-being.</p>
-</div>
-<div class="section-box" style="border-left: 4px solid #A855F7;">
-<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
-<ul>
-<li><b>Prioritize Rest Above All:</b> Academic success is impossible without cognitive functioning. You must immediately prioritize getting at least 7 hours of sleep, even if it means requesting extensions on your current assignments.</li>
-<li><b>Seek Professional Counseling:</b> High-level burnout requires professional intervention. Reach out to your university's mental health services immediately to develop a structured, realistic plan for managing your severe anxiety.</li>
-<li><b>Communicate with Professors:</b> Do not hide your struggle. Openly communicate your burnout to your professors or academic advisors. Most faculty members are willing to offer accommodations when they understand you are in crisis.</li>
-<li><b>Radical Digital Disconnect:</b> Since screens are likely fueling your dissociation, implement a strict digital detox. Use website blockers on your laptop to strictly limit your internet access to only essential academic portals.</li>
-</ul>
-</div>
-</div>"""
-        }
-
-        risk_key = 'High' if 'High' in final_label else 'Medium' if 'Medium' in final_label else 'Low'
-        st.markdown(f'''<div class="metric-card" style="margin-top: 25px;">\n{student_scripts.get(risk_key, "")}\n</div>''', unsafe_allow_html=True)
-
-# ------------------------------------------------------------------
-# Page 2: App Behavior Analysis (10 Results Update)
-# ------------------------------------------------------------------
-elif page == "App Behavior Analysis":
+if page == "App Behavior Analysis":
     st.markdown("<h3 style='color: #67E8F9 !important;'>📱 App Behavior Tech-Metrics</h3>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -622,7 +455,7 @@ elif page == "App Behavior Analysis":
 <div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
 <div class="section-box" style="border-left: 4px solid #34D399;">
 <p style="color:#10B981; font-size: 18px; margin-bottom: 5px;"><b>Analysis (Distracted Scrolling):</b></p>
-<p>The High Part of Class 2 introduces the first real signs of digital distraction, with a Brainrot Percentage ranging from 26% to 35%. Your telemetry data likely shows increased battery drain and frequent app switching. You often pick up your phone for a specific reason, only to find yourself scrolling aimlessly ten minutes later. This level indicates that social media algorithms are beginning to successfully capture and hold your attention. You might experience mild mental fatigue or a slight delay in completing tasks due to digital interruptions. While you aren't experiencing full burnout, the constant novelty from your screen is slowly conditioning your brain to crave frequent dopamine hits, making sustained focus slightly more difficult.</p>
+<p>The High Part of Class 2 introduces the first real signs of digital distraction, with a Brainrot Percentage ranging from 26% to 35%. Your telemetry data likely shows increased battery drain and frequent app switching. You often pick up your phone for a specific reason, only to find yourself scrolling aimlessly ten minutes later. This level indicates that social media algorithms are beginning to successfully capture and hold your attention. You might experience mild mental fatigue or a slight delay in completing tasks due to digital interruptions. While you arent experiencing full burnout, the constant novelty from your screen is slowly conditioning your brain to crave frequent dopamine hits, making sustained focus slightly more difficult.</p>
 </div>
 <div class="section-box" style="border-left: 4px solid #A855F7;">
 <p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
@@ -832,6 +665,173 @@ elif page == "App Behavior Analysis":
                 }
 
                 st.markdown(f'''<div class="metric-card" style="margin-top: 15px;">\n{app_scripts.get(clean_pred_class, "<h3 style='color:red;'>تعذر جلب التحليل الخاص بهذه الفئة. يُرجى مراجعة التوصيات العامة.</h3>")}\n</div>''', unsafe_allow_html=True)
+
+# ------------------------------------------------------------------
+# Page 2: Student Risk Analysis (Swapped)
+# ------------------------------------------------------------------
+elif page == "Student Risk Analysis":
+    st.markdown("<h3 style='color: #E9D5FF !important; font-weight: 700; display:flex; align-items:center; gap:10px; animation: fadeInUp 0.6s ease-out forwards;'>🧠 Student Risk Intelligence</h3>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    stress_map = {"Very Calm": 1.0, "Normal Stress": 4.0, "Highly Stressed": 7.0, "Extremely Stressed": 10.0}
+    anxiety_map = {"Stable": 1.0, "Mild Anxiety": 3.5, "Constant Tension": 7.0, "Severe Panic": 10.0}
+    support_map = {"Completely Isolated": 1.0, "Limited Support": 4.0, "Good Support": 7.5, "Strong Support": 10.0}
+    dep_map = {"Optimistic & Energetic": 1.0, "Occasional Sadness": 4.5, "Frequent Low Mood": 7.5, "Severe Despair": 10.0}
+    sleep_map = {"< 4 hours (Severely Deprived)": 3.0, "4-6 hours (Insufficient)": 5.0, "7-9 hours (Healthy)": 8.0, "> 9 hours (Oversleeping)": 10.0}
+    exam_map = {"No Immediate Exams": 1.0, "Manageable Workload": 4.0, "High Academic Stress": 7.5, "Overwhelming Pressure": 10.0}
+
+    with st.form("risk_form"):
+        st.subheader("📋 Behavioral Assessment")
+        st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin: 10px 0 25px 0;'>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2, gap="large")
+
+        with col1:
+            st.markdown("<b style='color:#38BDF8 !important; font-size: 18px;'>🧬 Psychological Factors</b>", unsafe_allow_html=True)
+            stress = st.selectbox("Stress Level:", list(stress_map.keys()))
+            anxiety = st.selectbox("Anxiety Level:", list(anxiety_map.keys()))
+            depression = st.selectbox("Mood & Energy:", list(dep_map.keys()))
+        with col2:
+            st.markdown("<b style='color:#38BDF8 !important; font-size: 18px;'>🌍 Environmental Factors</b>", unsafe_allow_html=True)
+            support = st.selectbox("Social Support:", list(support_map.keys()))
+            sleep = st.selectbox("Daily Sleep:", list(sleep_map.keys()))
+            exams = st.selectbox("Academic Workload:", list(exam_map.keys()))
+        submit_risk = st.form_submit_button("Initiate AI Analysis", use_container_width=True)
+
+    if submit_risk:
+        features = pd.DataFrame([{
+            'stress_level': float(stress_map[stress]), 'anxiety_score': float(anxiety_map[anxiety]),
+            'depression_score': float(dep_map[depression]), 'social_support': float(support_map[support]),
+            'sleep_hours': float(sleep_map[sleep]), 'exam_pressure': float(exam_map[exams])
+        }])
+
+        with st.spinner("Processing..."):
+            probs = risk_model.predict_proba(features)[0]
+            clean_classes = [str(c).strip().title() for c in encoder.classes_]
+            prob_dict = {c: p for c, p in zip(clean_classes, probs)}
+            
+            if prob_dict.get('High', 0.0) >= 0.25: final_label = 'High'
+            elif prob_dict.get('Medium', 0.0) >= 0.35: final_label = 'Medium'
+            else: final_label = clean_classes[np.argmax(probs)]
+
+            st.session_state['last_analysis_context'] = f"قام المستخدم للتو بتحليل (Student Risk Analysis). النتيجة هي: مستوى خطر {final_label}."
+            log_data("Students", [stress, anxiety, depression, support, sleep, exams, final_label])
+
+        res_col1, res_col2 = st.columns([1, 1.5])
+        with res_col1:
+            st.markdown('<div class="metric-card" style="text-align: center;">', unsafe_allow_html=True)
+            if 'High' in final_label: st.markdown("<h2 style='color:#F43F5E; font-size: 30px; font-weight: 900;'>🚨 HIGH RISK</h2>", unsafe_allow_html=True)
+            elif 'Medium' in final_label: st.markdown("<h2 style='color:#FBBF24; font-size: 30px; font-weight: 900;'>🟡 MEDIUM RISK</h2>", unsafe_allow_html=True)
+            else: st.markdown("<h2 style='color:#34D399; font-size: 30px; font-weight: 900;'>✅ LOW RISK</h2>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with res_col2:
+            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+            fig = px.bar(x=probs*100, y=clean_classes, orientation='h', color=clean_classes, color_discrete_map={'High':'#F43F5E', 'Medium':'#FBBF24', 'Low':'#34D399'})
+            fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#F8FAFC'), height=200, showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # ==========================================
+        # 📝 إسكريبت تقييم الطلاب
+        # ==========================================
+        student_scripts = {
+            'Low': """<div dir="rtl" style="text-align: right;" class="script-text">
+<div class="script-title" style="color:#34D399;">✅ مستوى الخطر المنخفض | Low Risk Level</div>
+<div class="section-box" style="border-right: 4px solid #34D399;">
+<p style="color:#6EE7B7; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
+<p>يشير مستوى الخطر المنخفض إلى أنك تتنقل في بيئتك الأكاديمية بنجاح مع توازن عقلي وعاطفي ممتاز. من المحتمل أنك تبلغ عن أنماط نوم صحية، وعبء عمل أكاديمي يمكن إدارته، ومزاج متفائل بشكل عام. نظراً لأن مستويات التوتر والقلق لديك مستقرة، تظل وظائفك المعرفية حادة، مما يسمح بأداء أكاديمي عالٍ. أنت تستفيد بشكل كبير من أنظمة الدعم الاجتماعي القوية وآليات التكيف الصحية، مما يضمن عدم تحول الضغوط العرضية إلى احتراق. أنت تنظر إلى دراستك كتمثيل لتحدٍ إيجابي وليس كعبء ساحق. تحميك هذه الحالة المرنة بقوة ضد الاحتراق الرقمي، مما يعني أنه يمكنك استخدام التكنولوجيا للتعلم دون الوقوع في فخ التمرير اللانهائي أو استخدام وسائل التواصل الاجتماعي للهروب من الواقع الأكاديمي.</p>
+</div>
+<div class="section-box" style="border-right: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
+<ul>
+<li><b>الحفاظ على عادات نوم صحية ومتسقة:</b> استمر في إعطاء الأولوية للنوم من 7 إلى 9 ساعات. الراحة عالية الجودة هي الركيزة الأساسية لنجاحك الأكاديمي الحالي وتنظيمك العاطفي الممتاز.</li>
+<li><b>التوجيه ودعم الأقران:</b> نظراً لأن لديك دعماً اجتماعياً قوياً، فكر في توجيه الآخرين. إن تعليم الأقران لا يعزز معرفتك فحسب، بل يعمق أيضاً روابطك الاجتماعية القيمة.</li>
+<li><b>إدارة الوقت الاستباقية:</b> استمر في استخدام المخططات أو التقويمات الرقمية لجدولة مهامك مسبقاً. البقاء متقدماً على المواعيد النهائية يضمن بقاء عبء العمل قابلاً للإدارة وبقاء التوتر منخفضاً بشكل ملحوظ.</li>
+</ul>
+</div>
+</div>
+<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
+<div class="section-box" style="border-left: 4px solid #34D399;">
+<p style="color:#6EE7B7; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
+<p>A Low Risk Level indicates that you are successfully navigating your academic environment with excellent mental and emotional balance. You likely report healthy sleep patterns, a manageable academic workload, and a generally optimistic mood. Because your stress and anxiety levels are stable, your cognitive functions remain sharp, allowing for high academic performance. You benefit greatly from strong social support systems and healthy coping mechanisms, ensuring that occasional pressures do not escalate into burnout. You view your studies as a positive challenge rather than an overwhelming burden. This resilient state strongly protects you against digital burnout, meaning you can utilize technology for learning without falling into the trap of endless scrolling or using social media to escape academic reality.</p>
+</div>
+<div class="section-box" style="border-left: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
+<ul>
+<li><b>Maintain Consistent Sleep Hygiene:</b> Continue prioritizing your 7 to 9 hours of sleep. High-quality rest is the foundational pillar of your current academic success and excellent emotional regulation.</li>
+<li><b>Mentorship and Peer Support:</b> Since you have strong social support, consider mentoring others. Teaching peers not only reinforces your own knowledge but also deepens your valuable social connections.</li>
+<li><b>Proactive Time Management:</b> Keep using planners or digital calendars to schedule your tasks in advance. Staying ahead of deadlines ensures your workload remains manageable and your stress stays remarkably low.</li>
+</ul>
+</div>
+</div>""",
+
+            'Medium': """<div dir="rtl" style="text-align: right;" class="script-text">
+<div class="script-title" style="color:#FBBF24;">🟡 مستوى الخطر المتوسط | Medium Risk Level</div>
+<div class="section-box" style="border-right: 4px solid #FBBF24;">
+<p style="color:#FCD34D; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
+<p>يشير مستوى الخطر المتوسط إلى أنك تتأرجح على حافة الإرهاق الأكاديمي. أنت تعاني من ارتفاع التوتر، والحزن العرضي، والقلق الخفيف. قد يكون نومك غير كافٍ، حيث يتقلب بين 4 إلى 6 ساعات، مما يعيق بشكل مباشر قدرة دماغك على التعافي. يتزايد الضغط الأكاديمي، مما يجعل الشعور بعبء العمل أكثر صعوبة في الإدارة. في هذه المرحلة، أنت معرض بشدة لاستخدام الوسائط الرقمية كآلية للتكيف. قد تجد نفسك تقوم بالتمرير بشكل سلبي لتجنب التفكير في الاختبارات القادمة، مبدلاً دون قصد الراحة المجددة للنشاط بالتشتت الرقمي. يخلق هذا حلقة مفرغة خطيرة حيث يؤدي ضعف النوم والاحتراق الخفيف إلى مزيد من وقت الشاشة، والذي بدوره يقلل من دافعك العام وتركيزك اليومي.</p>
+</div>
+<div class="section-box" style="border-right: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
+<ul>
+<li><b>إنشاء روتين للاسترخاء:</b> استبدل الدراسة أو التمرير في وقت متأخر من الليل بروتين مهدئ قبل النوم. قراءة كتاب أو ممارسة التنفس العميق يساعد على نقل دماغك من الضغط الأكاديمي العالي إلى النوم المجدد للنشاط.</li>
+<li><b>تقسيم المهام إلى خطوات صغيرة:</b> تؤدي أعباء العمل المرهقة إلى سلوكيات التجنب مثل التمرير الكارثي. قم بتقسيم مهامك إلى مهام صغيرة مدتها 15 دقيقة لبناء الزخم وتقليل القلق المرتبط بالمشاريع الكبيرة.</li>
+<li><b>جدولة "وقت للقلق":</b> خصص 20 دقيقة يومياً تحديداً لتدوين مخاوفك الأكاديمية. احتواء توترك في نافذة زمنية محددة يمنعه من التسرب إلى وقت استرخائك ونومك.</li>
+<li><b>الاستفادة من موارد الحرم الجامعي:</b> لا تنتظر حتى يتم إرهاقك تماماً. شكل مجموعة دراسية أو قم بزيارة مركز الدعم الأكاديمي بجامعتك لتوزيع الضغط بشكل خفيف وتحسين شبكة الدعم الاجتماعي الخاصة بك.</li>
+</ul>
+</div>
+</div>
+<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
+<div class="section-box" style="border-left: 4px solid #FBBF24;">
+<p style="color:#FCD34D; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
+<p>A Medium Risk Level suggests you are balancing on the edge of academic fatigue. You are experiencing elevated stress, occasional sadness, and mild anxiety. Your sleep might be insufficient, fluctuating between 4 to 6 hours, which directly hampers your brain's ability to recover. The academic pressure is building, making your workload feel increasingly difficult to manage. At this stage, you are highly vulnerable to using digital media as a coping mechanism. You might find yourself passively scrolling to avoid thinking about upcoming exams, unintentionally trading restorative rest for digital distraction. This creates a dangerous feedback loop where poor sleep and mild burnout lead to more screen time, which in turn further decreases your overall motivation and daily focus.</p>
+</div>
+<div class="section-box" style="border-left: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
+<ul>
+<li><b>Establish a Wind-Down Routine:</b> Swap late-night studying or scrolling for a calming pre-sleep routine. Reading a book or practicing deep breathing helps transition your brain from high academic stress to restorative sleep.</li>
+<li><b>Break Tasks into Micro-Steps:</b> Overwhelming workloads trigger avoidance behaviors like doomscrolling. Break your assignments into tiny, 15-minute tasks to build momentum and reduce the anxiety associated with large projects.</li>
+<li><b>Schedule "Worry Time":</b> Allocate 20 minutes a day specifically to write down your academic anxieties. Containing your stress to a specific window prevents it from bleeding into your relaxation and sleep time.</li>
+<li><b>Leverage Campus Resources:</b> Don't wait until you are fully overwhelmed. Form a study group or visit your university's academic support center to lightly distribute the pressure and improve your social support network.</li>
+</ul>
+</div>
+</div>""",
+
+            'High': """<div dir="rtl" style="text-align: right;" class="script-text">
+<div class="script-title" style="color:#F43F5E;">🚨 مستوى الخطر المرتفع | High Risk Level</div>
+<div class="section-box" style="border-right: 4px solid #F43F5E;">
+<p style="color:#FB7185; font-size: 18px; margin-bottom: 5px;"><b>التحليل المباشر:</b></p>
+<p>مستوى الخطر المرتفع هو علامة تحذير حاسمة من الاحتراق الأكاديمي والرقمي الشديد. من المحتمل أنك تعاني من ضغط شديد، وحالات مزاجية منخفضة متكررة، وقلق حاد. نومك إما محروم بشدة أو مفرط كاستجابة للإرهاق. مع الضغط الأكاديمي الساحق والدعم الاجتماعي المحدود، أنت تعمل بالكامل في وضع "البقاء على قيد الحياة". في هذا المستوى، يكون احتمال الاستخدام الإشكالي لوسائل التواصل الاجتماعي مرتفعاً بشكل لا يصدق. قد تستخدم المحتوى اللانهائي للانفصال تماماً عن الضغط الشديد لحياتك اليومية. يضعف هذا الإرهاق الشديد ذاكرتك، ويسحق وظائفك التنفيذية، ويدمر أداءك الأكاديمي. دماغك مثقل بشكل كبير، ويتطلب تدخلاً فورياً ورحيماً لاستعادة رفاهيتك الجسدية والعقلية.</p>
+</div>
+<div class="section-box" style="border-right: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية (تدخل فوري):</b></p>
+<ul>
+<li><b>إعطاء الأولوية للراحة فوق كل شيء:</b> النجاح الأكاديمي مستحيل دون الأداء المعرفي. يجب عليك على الفور إعطاء الأولوية للحصول على ما لا يقل عن 7 ساعات من النوم، حتى لو كان ذلك يعني طلب تمديد لمهامك الحالية.</li>
+<li><b>طلب الاستشارة المهنية:</b> يتطلب الاحتراق عالي المستوى تدخلاً مهنياً. تواصل مع خدمات الصحة النفسية في جامعتك على الفور لوضع خطة منظمة وواقعية لإدارة قلقك الشديد.</li>
+<li><b>التواصل مع الأساتذة:</b> لا تخفِ معاناتك. تواصل بصراحة حول إرهاقك مع أساتذتك أو مرشديك الأكاديميين. يميل معظم أعضاء هيئة التدريس إلى تقديم تسهيلات عندما يدركون أنك في أزمة.</li>
+<li><b>الانفصال الرقمي الجذري:</b> نظراً لأن الشاشات من المحتمل أن تغذي انفصالك عن الواقع، قم بتنفيذ التخلص من السموم الرقمية بصرامة. استخدم أدوات حظر مواقع الويب على الكمبيوتر المحمول الخاص بك لتقييد وصولك إلى الإنترنت بشكل صارم على البوابات الأكاديمية الأساسية فقط.</li>
+</ul>
+</div>
+</div>
+<div dir="ltr" style="text-align: left; margin-top:25px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top:20px;" class="script-text">
+<div class="section-box" style="border-left: 4px solid #F43F5E;">
+<p style="color:#FB7185; font-size: 18px; margin-bottom: 5px;"><b>Analysis:</b></p>
+<p>A High Risk Level is a critical warning sign of severe academic and digital burnout. You are likely enduring extreme stress, frequent low moods, and severe anxiety. Your sleep is either severely deprived or excessive as an exhaustion response. With overwhelming academic pressure and limited social support, you are functioning entirely in survival mode. In this tier, the likelihood of problematic social media use is incredibly high. You may be using endless content to completely dissociate from the intense pressure of your daily life. This severe exhaustion impairs your memory, crushes your executive functioning, and ruins your academic performance. Your brain is drastically overloaded, requiring an immediate and compassionate intervention to restore your physical and mental well-being.</p>
+</div>
+<div class="section-box" style="border-left: 4px solid #A855F7;">
+<p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>Recommendations:</b></p>
+<ul>
+<li><b>Prioritize Rest Above All:</b> Academic success is impossible without cognitive functioning. You must immediately prioritize getting at least 7 hours of sleep, even if it means requesting extensions on your current assignments.</li>
+<li><b>Seek Professional Counseling:</b> High-level burnout requires professional intervention. Reach out to your university's mental health services immediately to develop a structured, realistic plan for managing your severe anxiety.</li>
+<li><b>Communicate with Professors:</b> Do not hide your struggle. Openly communicate your burnout to your professors or academic advisors. Most faculty members are willing to offer accommodations when they understand you are in crisis.</li>
+<li><b>Radical Digital Disconnect:</b> Since screens are likely fueling your dissociation, implement a strict digital detox. Use website blockers on your laptop to strictly limit your internet access to only essential academic portals.</li>
+</ul>
+</div>
+</div>"""
+        }
+
+        risk_key = 'High' if 'High' in final_label else 'Medium' if 'Medium' in final_label else 'Low'
+        st.markdown(f'''<div class="metric-card" style="margin-top: 25px;">\n{student_scripts.get(risk_key, "")}\n</div>''', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------
 # Page 3: AI Assistant 🤖
