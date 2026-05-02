@@ -271,14 +271,16 @@ if page == "App Behavior Analysis":
         with col_android:
             st.markdown("<h4 style='color:#34D399; margin-bottom:5px;'>🤖 Android Devices</h4>", unsafe_allow_html=True)
             st.markdown("""
-            * **Screen On Time & Usage Time:** Go to **Settings > Digital Wellbeing & parental controls**.
+            * **Screen Time:** Go to **Settings > Digital Wellbeing & parental controls**.
+            * **App Usage Time:** Inside Digital Wellbeing, tap the dashboard or specific apps to see exact minutes per day.
             * **Battery Drain:** Go to **Settings > Battery > Battery usage**.
             * **Data Usage:** Go to **Settings > Network & internet > Internet > App data usage**.
             """)
         with col_ios:
             st.markdown("<h4 style='color:#F87171; margin-bottom:5px;'>🍏 iOS (iPhone)</h4>", unsafe_allow_html=True)
             st.markdown("""
-            * **Screen On Time & Usage Time:** Go to **Settings > Screen Time > See All Activity**.
+            * **Screen Time:** Go to **Settings > Screen Time > See All Activity**.
+            * **App Usage Time:** In the Screen Time menu, scroll down to the 'MOST USED' section to see daily minutes for each app.
             * **Battery Drain:** Go to **Settings > Battery**.
             * **Data Usage:** Go to **Settings > Cellular**.
             """)
@@ -287,6 +289,13 @@ if page == "App Behavior Analysis":
         st.markdown("""
         > **` (Percentage Used ÷ 100) × Total Battery Capacity (mAh) `**<br>
         *Example:* If you used 40% of a 5000 mAh battery: `(40 ÷ 100) × 5000 = 2000 mAh`.
+        """, unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<h4 style='color:#FBBF24; margin-bottom:5px;'>📊 How to calculate Daily Data Usage (MB)?</h4>", unsafe_allow_html=True)
+        st.markdown("""
+        > **If your phone shows Monthly Data, divide it by 30 to get the Daily Usage:**<br>
+        > **` Monthly Data Usage (MB) ÷ 30 = Daily Data Usage (MB) `**<br>
+        *Example:* If your monthly usage is 30,000 MB (approx. 30 GB): `30,000 ÷ 30 = 1000 MB/day`. *(Note: 1 GB = 1024 MB)*
         """, unsafe_allow_html=True)
 
     with st.form("app_behavior_form"):
