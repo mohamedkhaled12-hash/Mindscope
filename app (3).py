@@ -56,10 +56,14 @@ if "gemini_api_key" not in st.session_state:
 # ==========================================
 st.markdown("""
 <style>
-    .stApp {
+    /* Force Unified Theme for Light & Dark Mode */
+    .stApp, [data-testid="stAppViewContainer"] {
         background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%) !important;
-        background-attachment: fixed;
+        background-color: #020617 !important;
+        background-attachment: fixed !important;
+        color-scheme: dark !important;
     }
+    
     [data-testid="stHeader"] { background-color: transparent !important; }
     [data-testid="stHeader"] * { color: #F8FAFC !important; }
 
@@ -71,16 +75,22 @@ st.markdown("""
     }
 
     .gradient-text {
-        background: linear-gradient(135deg, #A855F7 0%, #38BDF8 100%);
+        background: linear-gradient(to right, #A855F7, #38BDF8, #34D399, #38BDF8, #A855F7);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 900;
-        font-size: 3.2rem;
+        font-size: 3.8rem;
         text-align: center;
         margin-top: -20px;
         margin-bottom: 25px;
-        letter-spacing: -1px;
-        text-shadow: 0px 4px 20px rgba(168, 85, 247, 0.3); 
+        letter-spacing: -1.5px;
+        filter: drop-shadow(0px 4px 15px rgba(168, 85, 247, 0.4));
+        animation: shine 3.5s linear infinite;
+    }
+    
+    @keyframes shine {
+        to { background-position: 200% center; }
     }
 
     @keyframes fadeInUp {
@@ -126,6 +136,7 @@ st.markdown("""
     
     div[data-baseweb="select"] *, div[data-baseweb="base-input"] * {
         color: #0F172A !important;
+        -webkit-text-fill-color: #0F172A !important;
     }
 
     div[data-baseweb="select"] > div:hover, div[data-baseweb="base-input"] > input:hover {
@@ -244,7 +255,7 @@ except Exception as e:
 # ==========================================
 # 🚀 Navigation Header
 # ==========================================
-st.markdown("<div class='gradient-text'>MindScope</div>", unsafe_allow_html=True)
+st.markdown("<div class='gradient-text'>✨ MindScope ✨</div>", unsafe_allow_html=True)
 
 page = st.radio("", ["App Behavior Analysis", "Student Risk Analysis", "AI Assistant 🤖"], horizontal=True, label_visibility="collapsed")
 
@@ -417,7 +428,7 @@ if page == "App Behavior Analysis":
 <p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
 <ul>
 <li><b>قاعدة الـ 30 دقيقة:</b> قصر جلسات التمرير على 30 دقيقة يومياً. تظهر الدراسات أن تقييد وسائل التواصل الاجتماعي بنصف ساعة يحسن الحالة المزاجية بشكل كبير ويقلل من مستويات القلق.</li>
-<li><b>إيقاف الإشعارات غير الضرورية:</b> قم بتعطيل التنبيهات لتطبيقات التواصل الاجتماعي. من خلال إيقاف الانقطاعات المستمرة، تستعيد السيطرة على انتباه بدلاً من ترك الجهاز يملي عليك تركيزك.</li>
+<li><b>إيقاف الإشعارات غير الضرورية:</b> قم بتعطيل التنبيهات لتطبيقات التواصل الاجتماعي. من خلال إيقاف الانقطاعات المستمرة، تستعيد السيطرة على انتباهك بدلاً من ترك الجهاز يملي عليك تركيزك.</li>
 <li><b>الاستخدام المقصود للتطبيقات:</b> قبل فتح أي تطبيق، اذكر بصوت عالٍ الغرض من ذلك. إذا لم تتمكن من تحديد سبب فتحه، فضع الهاتف جانباً. هذا يكسر رد الفعل المتمثل في التحقق الطائش.</li>
 </ul>
 </div>
