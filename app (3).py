@@ -14,7 +14,7 @@ from datetime import datetime
 warnings.filterwarnings('ignore')
 
 # 1. Page Config
-st.set_page_config(page_title="Vision Analytics AI", page_icon="✨", layout="wide")
+st.set_page_config(page_title="MindScope", page_icon="✨", layout="wide")
 
 # ==========================================
 # 📊 إعداد الاتصال بقاعدة بيانات Google Sheets
@@ -78,6 +78,7 @@ st.markdown("""
         font-size: 3.2rem;
         text-align: center;
         margin-top: -20px;
+        margin-bottom: 25px;
         letter-spacing: -1px;
         text-shadow: 0px 4px 20px rgba(168, 85, 247, 0.3); 
     }
@@ -243,8 +244,7 @@ except Exception as e:
 # ==========================================
 # 🚀 Navigation Header
 # ==========================================
-st.markdown("<div class='gradient-text'>Vision Analytics</div>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #94A3B8 !important; margin-bottom: 25px; font-size: 1.1rem; animation: fadeInUp 0.4s ease-out forwards;'>Empowered by Advanced Machine Learning</p>", unsafe_allow_html=True)
+st.markdown("<div class='gradient-text'>MindScope</div>", unsafe_allow_html=True)
 
 page = st.radio("", ["App Behavior Analysis", "Student Risk Analysis", "AI Assistant 🤖"], horizontal=True, label_visibility="collapsed")
 
@@ -417,7 +417,7 @@ if page == "App Behavior Analysis":
 <p style="color:#C084FC; font-size: 18px; margin-bottom: 5px;"><b>التوصيات العملية:</b></p>
 <ul>
 <li><b>قاعدة الـ 30 دقيقة:</b> قصر جلسات التمرير على 30 دقيقة يومياً. تظهر الدراسات أن تقييد وسائل التواصل الاجتماعي بنصف ساعة يحسن الحالة المزاجية بشكل كبير ويقلل من مستويات القلق.</li>
-<li><b>إيقاف الإشعارات غير الضرورية:</b> قم بتعطيل التنبيهات لتطبيقات التواصل الاجتماعي. من خلال إيقاف الانقطاعات المستمرة، تستعيد السيطرة على انتباهك بدلاً من ترك الجهاز يملي عليك تركيزك.</li>
+<li><b>إيقاف الإشعارات غير الضرورية:</b> قم بتعطيل التنبيهات لتطبيقات التواصل الاجتماعي. من خلال إيقاف الانقطاعات المستمرة، تستعيد السيطرة على انتباه بدلاً من ترك الجهاز يملي عليك تركيزك.</li>
 <li><b>الاستخدام المقصود للتطبيقات:</b> قبل فتح أي تطبيق، اذكر بصوت عالٍ الغرض من ذلك. إذا لم تتمكن من تحديد سبب فتحه، فضع الهاتف جانباً. هذا يكسر رد الفعل المتمثل في التحقق الطائش.</li>
 </ul>
 </div>
@@ -887,7 +887,7 @@ elif page == "AI Assistant 🤖":
                 st.markdown(prompt)
             st.session_state.messages.append({"role": "user", "content": prompt})
 
-            sys_instruct = """أنت مهندس بيانات ومساعد ذكي مدمج في منصة 'Vision Analytics'. وظيفتك تحليل البيانات والرد على استفسارات المستخدمين باحترافية وتقديم رؤى واضحة.
+            sys_instruct = """أنت مهندس بيانات ومساعد ذكي مدمج في منصة 'MindScope'. وظيفتك تحليل البيانات والرد على استفسارات المستخدمين باحترافية وتقديم رؤى واضحة.
             يجب أن تفهم جيداً أن هذه المنصة تحتوي على نظامين منفصلين للذكاء الاصطناعي:
             1. نظام (Student Risk Analysis): مخصص للطلاب فقط. يتوقع احتمالية تعرض الطالب للخطر بناءً على عوامل نفسية وبيئية.
             2. نظام (App Behavior Analysis): يحلل السلوك التقني لمستخدمي الهواتف الذكية. ركز على نصائح "الديتوكس الرقمي" والصحة.
