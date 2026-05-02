@@ -56,12 +56,21 @@ if "gemini_api_key" not in st.session_state:
 # ==========================================
 st.markdown("""
 <style>
-    /* Force Unified Theme for Light & Dark Mode */
+    /* =========================================
+       إلغاء نظام الـ Light Mode وتوحيد الألوان والخطوط 
+       ========================================= */
+    :root {
+        --text-color: #F8FAFC !important;
+        --background-color: #020617 !important;
+        --secondary-background-color: #0f172a !important;
+        color-scheme: dark !important;
+    }
+
     .stApp, [data-testid="stAppViewContainer"] {
         background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%) !important;
         background-color: #020617 !important;
         background-attachment: fixed !important;
-        color-scheme: dark !important;
+        color: #F8FAFC !important;
     }
     
     [data-testid="stHeader"] { background-color: transparent !important; }
