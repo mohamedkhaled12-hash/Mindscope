@@ -59,6 +59,14 @@ st.markdown("""
     /* =========================================
        إلغاء نظام الـ Light Mode وتوحيد الألوان والخطوط 
        ========================================= */
+       
+    /* إخفاء أزرار التحكم في الثيم (System/Light/Dark) من القائمة العلوية مع الحفاظ على باقي الخيارات */
+    ul[data-testid="main-menu-list"] > div:nth-child(1),
+    ul[data-testid="main-menu-list"] > div:nth-child(2),
+    div[data-testid="stThemeSelector"] {
+        display: none !important;
+    }
+
     :root {
         --text-color: #F8FAFC !important;
         --background-color: #020617 !important;
